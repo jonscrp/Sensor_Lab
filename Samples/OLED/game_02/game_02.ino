@@ -1,10 +1,10 @@
 /**
-* Randomizing the offset
+* Randomizing the offset, the purpose of this is to create a realistic bouncing effect
 * using random(max) - random(min, max)
 **/
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
-// oled buttons
+//OLED buttons
 // Assigning pins
 #define BUTTON_A 9
 #define BUTTON_B 6
