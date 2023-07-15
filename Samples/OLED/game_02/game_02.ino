@@ -5,10 +5,14 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
 // oled buttons
+// Assigning pins
 #define BUTTON_A 9
 #define BUTTON_B 6
 #define BUTTON_C 5
 
+
+// Board information  https://learn.adafruit.com/adafruit-128x64-oled-featherwing/pinouts
+// Note: The board uses the I2C protocol
 
 // Screen Dimension 64 X 128
 Adafruit_SH1107 display = Adafruit_SH1107(64, 128, &Wire); // large OLED display
@@ -24,6 +28,7 @@ void setup() {
   Serial.begin(96000);
   Serial.print("Starting program");
 
+// Note: 0x3C is the board address and can be changed to 0x3D
   if (!display.begin(0x3C, true)){ // Address 0x3C for 128x32
     Serial.println(F("SH110X  allocation failed"));
   }
@@ -61,13 +66,14 @@ void loop() {
   r= random(1,5);
 
   // Note: if you don't round the screen dimensions you will get a weird sporatic misprint in your screen. This is possibly due to the r values varying from 1 to 5 and that being enough to make the if staments fail the checking.
-  // Calculating new coordinates
+  // Logic to prevent the character from leaving the screen.
   if( (x_coor + x_offset + r) > 120 ||  (x_coor + x_offset + r) < 0){
       x_offset = -x_offset;
   } 
   if( (y_coor + y_offset + r) > 60 ||  (y_coor + y_offset + r) < 0 ){
       y_offset =  -y_offset;
   }
+  // Calculating new coordinates
   x_coor += x_offset + r;
   y_coor += y_offset + r;
   display.clearDisplay();

@@ -49,7 +49,6 @@ void setup() {
 }
 
 void loop() {
-  display.clearDisplay();
   display.setCursor(x_coor,y_coor);
   display.print("W");
   display.display();
@@ -64,4 +63,5 @@ void loop() {
   // Calculating new position
   x_coor += x_offset;
   y_coor += y_offset;
+  display.clearDisplay();
 }
