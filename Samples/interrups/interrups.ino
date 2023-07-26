@@ -2,14 +2,16 @@
 //  https://www.tutorialspoint.com/arduino/arduino_interrupts.htm
 // https://deepbluembedded.com/arduino-interrupts-tutorial-examples
 
-
-#include <Adafruit_GFX.h>
-#include <Adafruit_SH110X.h>
+#include <Wire.h>
+#include <Adafruit_SH110X.h>  // oled library
 //OLED buttons
 // Assigning pins
 #define BUTTON_A 9
 #define BUTTON_B 6
 #define BUTTON_C 5
+
+
+
 
 /*
 ///const byte ledPin = 13;
@@ -18,7 +20,6 @@ const byte BUTTON_B = 6;
 const byte BUTTON_C = 5;
 */
 
-int options[2];
 //volatile byte state = LOW;
 
 // 'X' = no option selected
@@ -26,8 +27,22 @@ char sentinel = 'X';
 
 // Screen Dimension 64 X 128
 Adafruit_SH1107 display = Adafruit_SH1107(64, 128, &Wire); // large OLED display
-
 void setup() {
+  Serial.print("starting 128x64 OLED... ");
+  if (!display.begin(0x3C, true)) // Address 0x3C for 128x32
+    Serial.println(F("SH110X  allocation failed")); 
+  else{
+
+  Serial.begin(9600);
+  display.display();
+  delay(700);
+  display.setRotation(1); // Up
+  // Clear the buffer.
+  display.clearDisplay();
+  display.display();
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(SH110X_WHITE);
   //pinMode(ledPin, OUTPUT);
   pinMode(BUTTON_A, INPUT_PULLUP);
   pinMode(BUTTON_B, INPUT_PULLUP);
@@ -37,75 +52,113 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(BUTTON_C), C, CHANGE);
 
   display.print("Select using the buttons A, B or C");
-
-  question_1();
-
-}
-
-
-void question_1(){
-  // Select Option 
-  display.clearDisplay();
-  display.setCursor(0,0);
-  display.println("Create s new connection");
-  display.println("Use an existing connection");
-  display.println("Continue offline");
-  display.display(); // actually display all of the above
-
-  switch(sentinel){
-    case 'A':  question_2();
-    case 'B':  question_3();
-    case 'C': Serial.println("Continuing Offline...");
-      break;
-    default:
-      break;
+  delay(1000);
+  display.display();
+  sel_connection(); 
   }
 }
 
-void question_2(){
+
+void sel_connection(){
+  delay(1000);
+  display.clearDisplay();
+  display.setCursor(0,0);
+  // Options
+  display.println("New Connection");
+  display.println("Use Existing");
+  display.println("Offline");
+  display.display(); // actually display all of the above
+  Serial.println("Wait for user choice:");
+  reset();
+  while(sentinel == 'X'){
+    Serial.println(sentinel);
+    switch(sentinel){
+    case 'A':  
+      Serial.print("Connection method: ");
+      Serial.println(sentinel);
+      create_new_connection();  
+      //Serial.println("A");// question_1a();
+      break;
+    case 'B':
+      Serial.print("Connection method: ");
+      Serial.println(sentinel);
+      use_existing_connection();
+      //Serial.println("B");//question_1b();
+      break;
+    case 'C':
+      // move on with out connecting to internet
+      Serial.println("Continuing Offline...");
+      break;
+    }
+  }
+  Serial.println("Kill while");
+}
+
+
+void create_new_connection(){
+  delay(1000);
    // Select Option 
   display.clearDisplay();
   display.setCursor(0,0);
   display.println("Continue");
   display.println("Return");
   display.display(); // actually display all of the above
-
-  switch(sentinel){
-    case('A'): Serial.println("Start provisioning");
-      break;
-    case('B'): question_1();
-      break;
-    default:
-      break;
+  reset();
+  while(sentinel == 'X'){
+    Serial.println(sentinel);
+    switch(sentinel){
+      case 'A':
+        Serial.print("Creating new connection: ");
+        Serial.println(sentinel);
+        Serial.println("Start provisioning");
+        break;
+      case 'B': 
+        Serial.print("Connection method: ");
+        Serial.println(sentinel);
+        sel_connection(); // return to previous step
+        break;
+    }
   }
+   Serial.println("Kill while");
 }
 
-void question_3(){
+void use_existing_connection(){
+  delay(1000);
   // use existing connection
   // display connections available - max2
   display.clearDisplay();
   display.setCursor(0,0);
-  display.println("Connection1");
+  display.println("Connection1");  // secrets.
   display.println("Connection2");
   display.println("Return");
   display.display(); // actually display all of the above
-
-  switch(sentinel){
-    case 'A': Serial.println("Connecting to connection 1");
-      //SSID = connection_1_SSID;
-      //PSWD = connection_1_pswd;
-      //initialize_wifi();
-      break;
-    case 'B': Serial.println("Connecting to connection 2");
-     // SSID = connection_2_SSID;
-     // PSWD = connection_3_pswd;
-     // initialize_wifi();
-      break;
-    case 'C': question_1();
-      break;
-    default:
-      break;
+  reset();
+  while(sentinel == 'X'){
+    Serial.println(sentinel);
+    switch(sentinel){
+      case 'A':
+        Serial.println("Connecting to connection 1");
+        Serial.print("Connecting SSID: ");
+        Serial.println(sentinel);
+        //SSID = connection_1_SSID;
+        //PSWD = connection_1_pswd;
+        //initialize_wifi();
+        break;
+      case 'B': 
+        Serial.println("Connecting to connection 2");
+        Serial.print("Connecting SSID: ");
+        Serial.println(sentinel);
+        // SSID = connection_2_SSID;
+        // PSWD = connection_3_pswd;
+        // initialize_wifi();
+        break;
+      case 'C':
+        sel_connection();
+        //Serial.print("Continue offline");
+        break;
+    }
   }
+  Serial.println("Kill while");
 }
 
 void loop() {
@@ -117,7 +170,7 @@ void reset(){
 }
 
 void A(){
-  sentinel =  'A';
+  sentinel = 'A';
 }
 
 void B(){
