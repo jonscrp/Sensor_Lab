@@ -10,18 +10,6 @@
 #define BUTTON_B 6
 #define BUTTON_C 5
 
-
-
-
-/*
-///const byte ledPin = 13;
-const byte BUTTON_A = 9;
-const byte BUTTON_B = 6;
-const byte BUTTON_C = 5;
-*/
-
-//volatile byte state = LOW;
-
 // 'X' = no option selected
 char sentinel = 'X';
 
@@ -52,7 +40,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(BUTTON_C), C, CHANGE);
 
   display.print("Select using the buttons A, B or C");
-  delay(1000);
+  delay(2500);
   display.display();
   sel_connection(); 
   }
@@ -64,9 +52,9 @@ void sel_connection(){
   display.clearDisplay();
   display.setCursor(0,0);
   // Options
-  display.println("New Connection");
-  display.println("Use Existing");
-  display.println("Offline");
+  display.println("[A]New Connection");
+  display.println("[B]Use Existing");
+  display.println("[C]Offline");
   display.display(); // actually display all of the above
   Serial.println("Wait for user choice:");
   reset();
@@ -77,13 +65,11 @@ void sel_connection(){
       Serial.print("Connection method: ");
       Serial.println(sentinel);
       create_new_connection();  
-      //Serial.println("A");// question_1a();
       break;
     case 'B':
       Serial.print("Connection method: ");
       Serial.println(sentinel);
       use_existing_connection();
-      //Serial.println("B");//question_1b();
       break;
     case 'C':
       // move on with out connecting to internet
@@ -128,9 +114,9 @@ void use_existing_connection(){
   // display connections available - max2
   display.clearDisplay();
   display.setCursor(0,0);
-  display.println("Connection1");  // secrets.
-  display.println("Connection2");
-  display.println("Return");
+  display.println("[A]Connection1");  // secrets.
+  display.println("[B]Connection2");
+  display.println("[C]Return");
   display.display(); // actually display all of the above
   reset();
   while(sentinel == 'X'){
